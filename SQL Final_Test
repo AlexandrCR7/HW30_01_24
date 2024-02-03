@@ -1,0 +1,110 @@
+
+-- 7. В подключенном MySQL репозитории создать базу данных “Друзья человека”
+
+CREATE DATABASE IF NOT EXISTS HumansFriends;
+USE HumansFriends;
+
+-- 8. Создать таблицы с иерархией из диаграммы в БД
+
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE Animals;
+CREATE TABLE IF NOT EXISTS Animals
+(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    animal_category VARCHAR(45)
+);
+
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE Home_Animals;
+CREATE TABLE IF NOT EXISTS Home_Animals
+(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    class_id INT,
+    name VARCHAR(45),
+    command VARCHAR(100),
+    date_of_birdth DATE,
+    FOREIGN KEY (class_id) REFERENCES Animals(id)
+);
+
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE Wild_Animals;
+CREATE TABLE IF NOT EXISTS Wild_Animals
+(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    class_id INT,
+    name VARCHAR(45),
+    command VARCHAR(100),
+    date_of_birdth DATE,
+    FOREIGN KEY (class_id) REFERENCES Animals(id)
+);
+
+-- 9. Заполнить низкоуровневые таблицы именами(животных), командами
+-- которые они выполняют и датами рождения
+
+INSERT Animals (animal_class)
+VALUES ('home'), ('wild');
+-- SELECT * From Animals;
+
+INSERT Home_Animals(class_id, name, command, date_of_birdth)
+VALUES
+	(1, 'Cat', 'Sleep', '2024-01-01'),
+    (1, 'Dog', 'Apport', '2023-07-20'),
+    (1, 'Hamster', 'Die', '2022-03-10');
+-- SELECT * FROM Home_Animals;
+
+INSERT Wild_Animals(class_id, name, command, date_of_birdth)
+VALUES
+	(2, 'Horse', 'Run around home', '2023-08-15'),
+    (2, 'Camel', 'Drink water', '2022-07-20'),
+    (2, 'Donkey', 'Sleep', '2022-01-10');
+-- SELECT * FROM Wild_Animals;
+
+-- 10. Удалив из таблицы верблюдов, т.к. верблюдов решили перевезти в другой
+-- питомник на зимовку. Объединить таблицы лошади, и ослы в одну таблицу.
+
+DELETE FROM Wild_Animals WHERE name = 'Camel';
+-- SELECT * FROM Wild_Animals;
+
+-- 11.Создать новую таблицу “молодые животные” в которую попадут все
+-- животные старше 1 года, но младше 3 лет и в отдельном столбце с точностью
+-- до месяца подсчитать возраст животных в новой таблице
+
+CREATE TABLE IF NOT EXISTS Yang_Animals
+(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    class_id INT, 
+    name VARCHAR(45),
+    command VARCHAR(45),
+    date_of_birthd DATE,
+    age VARCHAR(45)
+);
+
+TRUNCATE Yang_Animals;
+INSERT Yang_Animals(class_id, name, command, date_of_birthd, age)
+SELECT
+	class_id, name, command, date_of_birdth, timestampdiff(MONTH, date_of_birdth, Now())
+FROM Home_Animals
+WHERE timestampdiff(MONTH, date_of_birdth, Now()) BETWEEN 12 AND 36;
+
+INSERT Yang_Animals(class_id, name, command, date_of_birthd, age)
+SELECT
+	class_id, name, command, date_of_birdth, timestampdiff(MONTH, date_of_birdth, Now())
+FROM Wild_Animals
+WHERE timestampdiff(MONTH, date_of_birdth, Now()) BETWEEN 12 AND 36;
+
+SELECT * FROM Yang_Animals;
+
+-- 12. Объединить все таблицы в одну, при этом сохраняя поля, указывающие на
+-- прошлую принадлежность к старым таблицам.
+
+SELECT * FROM Home_Animals
+Union All
+SELECT * FROM Wild_Animals;
+
+
+
+    
+    
+    
+    
+    
